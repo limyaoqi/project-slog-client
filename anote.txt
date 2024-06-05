@@ -1,0 +1,24 @@
+login
+register
+add profile
+home post
+home chat
+home add post
+home post detail
+home profile detail
+
+havent done =>
+post button group function
+add and remove and follow
+home_left overflow
+can do a filter for the tags
+
+Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+    at ServerResponse.setHeader (node:_http_outgoing:652:11)
+    at ServerResponse.header (C:\Users\yaoqi\Desktop\server\node_modules\express\lib\response.js:795:10)
+    at ServerResponse.send (C:\Users\yaoqi\Desktop\server\node_modules\express\lib\response.js:175:12)
+    at ServerResponse.json (C:\Users\yaoqi\Desktop\server\node_modules\express\lib\response.js:279:15)
+    at C:\Users\yaoqi\Desktop\server\routes\posts.js:280:8
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'ERR_HTTP_HEADERS_SENT'
+}
