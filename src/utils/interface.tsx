@@ -14,7 +14,7 @@ export interface User {
 
 export interface Profile {
   _id: string;
-  user: User | null;
+  user: User;
   bio: string;
   location: string;
   avatar: string;
@@ -26,9 +26,9 @@ export interface Post {
   _id: string;
   title: string;
   description?: string;
-  user: User | null;
-  comments?: Comment[];
-  likes?: User[];
+  user: User;
+  comments: Comment[];
+  likes?: string[];
   tags?: Tags[];
   attachments?: string[];
   visibility?: "public" | "private";
@@ -40,9 +40,10 @@ export interface Comment {
   _id: string;
   content: string;
   post: Post;
-  user: User | null;
-  likes: User[];
+  user: User;
+  likes?: string[];
   replies?: Reply[];
+  isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +51,10 @@ export interface Comment {
 export interface Reply {
   _id: string;
   content: string;
-  user: User | null;
+  likes?: string[];
+
+  user: User;
+  isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,6 +82,17 @@ export interface Notification {
   postId?: Post;
   read: boolean;
   createdAt: Date;
+}
+
+export interface Chat {
+  _id: string;
+  sender: User;
+  receiver: User;
+  content: string;
+  read: boolean;
+  deletedBy: User[];
+  chatRecord: string;
+  time: Date;
 }
 
 export interface Tags {

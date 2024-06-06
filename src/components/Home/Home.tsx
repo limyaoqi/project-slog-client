@@ -18,13 +18,14 @@ export interface Friend {
 }
 interface HomeProps {
   token: string;
-  user: User | null;
+  user: User;
 }
 
 export default function Home({ token, user }: HomeProps) {
   const router = useRouter();
   const [selectedFriendId, setSelectedFriendId] = useState<string>("");
   const [profileId, setProfileId] = useState<string>("");
+  const [backpage, setBackpage] = useState<string>("");
 
   const [view, setView] = useState("Home_Post");
 
@@ -43,7 +44,10 @@ export default function Home({ token, user }: HomeProps) {
         </div>
         <div className="w-1/2 border-x-2 border-customGray ">
           <div className=" p-6 rounded-lg h-full ">
+            
             <Home_Center
+              backpage={backpage}
+              setBackpage={setBackpage}
               token={token}
               user={user}
               view={view}

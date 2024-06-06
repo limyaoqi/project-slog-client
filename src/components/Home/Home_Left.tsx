@@ -17,7 +17,7 @@ interface HomeLeftProps {
   setSelectedFriendId: (selectedFriendId: string) => void;
   setView: (view: string) => void;
   token: string;
-  user: User | null;
+  user: User;
 }
 
 export default function Home_Left({

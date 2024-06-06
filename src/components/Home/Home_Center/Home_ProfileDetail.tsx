@@ -33,7 +33,7 @@ const formatDate = (dateString: string) => {
 interface Home_ProfileDetailProps {
   setView: (view: string) => void;
   setPostId: (view: string) => void;
-  setBackPage: (view: string) => void;
+  setBackpage: (view: string) => void;
   setProfileId: (view: string) => void;
   token: string;
   profileId?: string;
@@ -43,7 +43,7 @@ export default function Home_ProfileDetail({
   setView,
   setPostId,
   profileId,
-  setBackPage,
+  setBackpage,
   setProfileId,
 }: Home_ProfileDetailProps) {
   const router = useRouter();
@@ -120,6 +120,7 @@ export default function Home_ProfileDetail({
 
   return (
     <div className="flex justify-center items-center h-full">
+      
       <div className="w-full bg-gray-300 p-4 rounded-md shadow-md text-gray-800">
         <div className="mx-auto max-w-screen-xl  px-4">
           <div className="flex justify-between items-center w-full mb-4">
@@ -131,7 +132,7 @@ export default function Home_ProfileDetail({
                   onClick={() => {
                     setView("Home_EditProfile");
                     setProfileId(profile.user._id);
-                    setBackPage("Home_ProfileDetail");
+                    setBackpage("Home_ProfileDetail");
                   }}
                 >
                   <FaEdit />
@@ -194,7 +195,7 @@ export default function Home_ProfileDetail({
                         onClick={() => {
                           setView("Home_PostDetail");
                           setPostId(post._id);
-                          setBackPage("Home_ProfileDetail");
+                          setBackpage("Home_ProfileDetail");
                         }}
                       >
                         <h3 className="text-lg font-bold">{post.title}</h3>
@@ -219,7 +220,7 @@ export default function Home_ProfileDetail({
                         <button
                           onClick={() => {
                             setView("Home_AddPost");
-                            setBackPage("Home_ProfileDetail");
+                            setBackpage("Home_ProfileDetail");
                           }}
                           className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out"
                         >

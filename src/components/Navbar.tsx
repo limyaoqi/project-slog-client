@@ -14,7 +14,7 @@ interface NavbarProps {
   setView: (view: string) => void;
   setProfileId: (view: string) => void;
   token: string;
-  user: User | null;
+  user: User;
   goLogin: () => void;
 }
 
@@ -67,13 +67,15 @@ export default function Navbar({
       <div className="relative w-3/10">
         <button onClick={toggleDropdown} className="focus:outline-none">
           <div className="w-12 h-12 mr-4">
-            {/* <Image
-              className="rounded-full h-full"
-              src={`http://localhost:2000/${user?.pr}`}
-              alt={`${user?.username} avatar`}
-              width={999}
-              height={999}
-            /> */}
+            {user && (
+              <Image
+                className="rounded-full h-full"
+                src={`http://localhost:2000/${user.profileId.avatar}`}
+                alt={`${user?.username} avatar`}
+                width={999}
+                height={999}
+              />
+            )}
           </div>
         </button>
         {dropdownOpen && (

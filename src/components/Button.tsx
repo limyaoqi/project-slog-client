@@ -32,7 +32,10 @@ export default function ButtonGroup({
           </>
         )}
       </button>
-      <button className="flex items-center justify-center border border-blue-500 hover:bg-blue-300 hover:text-white text-blue-500 font-bold py-2 px-4 flex-1 transition duration-300">
+      <button
+        className="flex items-center justify-center border border-blue-500 hover:bg-blue-300 hover:text-white text-blue-500 font-bold py-2 px-4 flex-1 transition duration-300"
+        onClick={onCommentClick}
+      >
         <FaRegCommentAlt className="mr-2" /> Comment
       </button>
       <button

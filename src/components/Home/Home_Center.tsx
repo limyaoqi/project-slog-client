@@ -16,7 +16,9 @@ interface Home_CenterProps {
   profileId: string;
   setProfileId: (view: string) => void;
   token: string;
-  user: User | null;
+  user: User;
+  backpage: string;
+  setBackpage: (backpage: string) => void;
 }
 
 export default function Home_Center({
@@ -27,9 +29,10 @@ export default function Home_Center({
   selectedFriendId,
   profileId,
   setProfileId,
+  backpage,
+  setBackpage,
 }: Home_CenterProps) {
   const [postId, setPostId] = useState<string>("");
-  const [backpage, setBackPage] = useState<string>("");
 
   return (
     <>
@@ -39,7 +42,7 @@ export default function Home_Center({
           setView={setView}
           setPostId={setPostId}
           setProfileId={setProfileId}
-          setBackPage={setBackPage}
+          setBackpage={setBackpage}
           user={user}
         />
       )}
@@ -72,7 +75,7 @@ export default function Home_Center({
           setPostId={setPostId}
           profileId={profileId}
           setProfileId={setProfileId}
-          setBackPage={setBackPage}
+          setBackpage={setBackpage}
           token={token}
         />
       )}
