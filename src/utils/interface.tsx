@@ -3,10 +3,9 @@ export interface User {
   _id: string;
   username: string;
   email: string;
-  password: string;
-  isAdmin: boolean;
+  password?: string;
   isOnline: boolean;
-  friendsCount: number;
+  role?: "superAdmin" | "admin" | "user";
   lastActive: Date;
   firstLogin: boolean;
   profileId: Profile;

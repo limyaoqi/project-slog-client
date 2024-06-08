@@ -126,7 +126,7 @@ export default function Home_Chatroom({
               {!isCurrentUser && (
                 <div className="w-10 h-10 mr-3">
                   <Image
-                    src={`http://localhost:2000/${message.sender.profileId.avatar}`}
+                    src={`http://localhost:2000/${message.sender.profileId?.avatar}`}
                     alt="User Avatar"
                     width={40}
                     height={40}
@@ -148,7 +148,7 @@ export default function Home_Chatroom({
               {isCurrentUser && (
                 <div className="w-10 h-10 ml-3">
                   <Image
-                    src={`http://localhost:2000/${message.sender.profileId.avatar}`}
+                    src={`http://localhost:2000/${message.sender.profileId?.avatar}`}
                     alt="User Avatar"
                     width={40}
                     height={40}

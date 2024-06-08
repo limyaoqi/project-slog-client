@@ -87,7 +87,7 @@ export default function Home_FriendRequest({
                 <div className="w-10 h-10 mr-2">
                   <Image
                     className="rounded-full h-full"
-                    src={`http://localhost:2000/${request.user1.profileId.avatar}`}
+                    src={`http://localhost:2000/${request.user1.profileId?.avatar}`}
                     alt={`${request.user2.username}'s avatar`}
                     width={999}
                     height={999}

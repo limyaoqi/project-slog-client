@@ -8,6 +8,7 @@ interface ButtonGroupProps {
   onLikeClick: () => void;
   onCommentClick: () => void;
   isLiked: boolean;
+  isPostPage: boolean;
 }
 
 export default function ButtonGroup({
@@ -15,6 +16,7 @@ export default function ButtonGroup({
   onCommentClick,
   onDetailClick,
   isLiked,
+  isPostPage,
 }: ButtonGroupProps) {
   return (
     <div className="flex w-full rounded mt-4">
@@ -38,12 +40,14 @@ export default function ButtonGroup({
       >
         <FaRegCommentAlt className="mr-2" /> Comment
       </button>
-      <button
-        className="flex items-center justify-center border border-gray-500 hover:bg-gray-300 hover:text-white text-gray-500 font-bold py-2 px-4 flex-1 rounded-r transition duration-300"
-        onClick={onDetailClick}
-      >
-        <FaCircleInfo className="mr-2" /> Detail
-      </button>
+      {isPostPage && (
+        <button
+          className="flex items-center justify-center border border-gray-500 hover:bg-gray-300 hover:text-white text-gray-500 font-bold py-2 px-4 flex-1 rounded-r transition duration-300"
+          onClick={onDetailClick}
+        >
+          <FaCircleInfo className="mr-2" /> Detail
+        </button>
+      )}
     </div>
   );
 }

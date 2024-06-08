@@ -24,14 +24,14 @@ export default function Home_EditPost({
   const router = useRouter();
 
   const {
-    data: post = [],
+    data: post,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["post", postId],
     queryFn: () => getPostById(postId),
   });
-
+  console.log(post);
   useEffect(() => {
     if (post) {
       setTitle(post.title);
@@ -58,7 +58,8 @@ export default function Home_EditPost({
   const [newTag, setNewTag] = useState<string>("");
   const [newTagsArr, setNewTagsArr] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
+  console.log(post);
+  console.log(selectedTags);
   const handleAddTag = () => {
     if (newTag.trim() !== "") {
       setNewTagsArr([...newTagsArr, newTag]);

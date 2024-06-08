@@ -1,17 +1,25 @@
 import axios from "axios";
 import { API_URL } from "./api_url";
 
-
 interface LoginData {
   email: string;
   password: string;
 }
 
 interface RegisterData {
-  username:string
+  username: string;
   email: string;
   password: string;
 }
+
+export const getUsers = async (token:string) => {
+  const res = await axios.get(`${API_URL}`, {
+    headers: {
+      "x-auth-token": token,
+    },
+  });
+  return res.data;
+};
 
 export const login = async (data: LoginData) => {
   // console.log(user)

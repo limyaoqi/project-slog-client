@@ -1,15 +1,21 @@
 "use client";
 
 // pages/login.js
-import { useState } from "react";
-import { getCookie } from "cookies-next";
+import { useEffect, useState } from "react";
+import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSnackbar } from "notistack";
 import { getTags } from "@/utils/api_tags";
-import { Tags } from "@/utils/interface";
+import { Tags, User } from "@/utils/interface";
 import { ProfileDataProps, createProfile } from "@/utils/api_profile";
+
+interface CookieData {
+  token: string;
+  user: User;
+  msg: string;
+}
 
 export default function LoginPage() {
   const { enqueueSnackbar } = useSnackbar();
@@ -37,6 +43,18 @@ export default function LoginPage() {
   const [newTag, setNewTag] = useState<string>("");
   const [newTagsArr, setNewTagsArr] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [cookieData, setCookieData] = useState<CookieData | null>(null);
+
+  useEffect(() => {
+    const currentUserString = getCookie("currentUser");
+    if (!currentUserString) {
+      router.push("/login");
+    } else {
+      const currentUser = JSON.parse(currentUserString);
+      setCookieData(currentUser);
+    }
+  }, []);
+  console.log(cookieData)
 
   const handleAddTag = () => {
     if (newTag.trim() !== "") {
@@ -61,8 +79,18 @@ export default function LoginPage() {
 
   const createProfileMutation = useMutation({
     mutationFn: createProfile,
-    onSuccess: () => {
-      // console.log(data);
+    onSuccess: (data: any) => {
+      if (cookieData) {
+        const updatedUser = {
+          ...cookieData,
+          user: { ...cookieData.user, profileId: data._id },
+        };
+        setCookie("currentUser", JSON.stringify(updatedUser), {
+          maxAge: 3600 * 24,
+        });
+        setCookieData(updatedUser); // Update state with new profileId
+      }
+
       enqueueSnackbar("Added profile Successfully", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["tags"] });

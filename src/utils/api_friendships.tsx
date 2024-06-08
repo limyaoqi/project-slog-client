@@ -14,9 +14,18 @@ export const getUserFriendShip = async (token: string, userId?: string) => {
 
   return res.data;
 };
+interface Params {
+  search?: string;
+}
 
-export const getAllFriend = async (token: string) => {
-  const res = await axios.get(`${API_URL}/friendships`, {
+export const getAllFriend = async (search: string, token: string) => {
+  let params: Params = {};
+  if (search !== "") {
+    params.search = search;
+  }
+
+  const queries = new URLSearchParams(params as Record<string, string>);
+  const res = await axios.get(`${API_URL}/friendships?` + queries.toString(), {
     headers: {
       "x-auth-token": `${token}`,
     },
@@ -74,5 +83,18 @@ export const rejectFriendRequest = async (data: DataFriend) => {
     }
   );
 
+  return res.data;
+};
+
+export const unfriendUser = async (data: DataFriend) => {
+  const res = await axios.post(
+    `${API_URL}/friendships/unfriend/${data._id}`,
+    "",
+    {
+      headers: {
+        "x-auth-token": data.token,
+      },
+    }
+  );
   return res.data;
 };

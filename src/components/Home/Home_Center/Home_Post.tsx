@@ -11,6 +11,7 @@ import Spinner from "@/components/Spinner";
 import ButtonGroup from "@/components/Button";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import Model from "@/components/Model";
+import { getUsers } from "@/utils/api_users";
 
 interface Home_PostProps {
   setView: (view: string) => void;
@@ -32,6 +33,7 @@ export default function Home_Post({
   // const router = useRouter();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+
   const [content, setContent] = useState<string>("");
   const [post_id, setPost_id] = useState<string>("");
   const [comment_id, setComment_id] = useState<string>("");
@@ -53,6 +55,24 @@ export default function Home_Post({
     queryFn: () => getPosts(token),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ["users", token],
+    queryFn: () => getUsers(token),
+  });
+
+  // console.log(users)
+
+  const likePostMutation = useMutation({
+    mutationFn: likePost,
+    onSuccess: () => {
+      // enqueueSnackbar("Deleted Successfully!", { variant: "success" });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: deletePost,
     onSuccess: () => {
@@ -68,17 +88,6 @@ export default function Home_Post({
     mutationFn: deleteComment,
     onSuccess: () => {
       enqueueSnackbar("Deleted Successfully!", { variant: "success" });
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-    },
-    onError: (error: any) => {
-      enqueueSnackbar(error.response.data.message, { variant: "error" });
-    },
-  });
-
-  const likePostMutation = useMutation({
-    mutationFn: likePost,
-    onSuccess: () => {
-      // enqueueSnackbar("Deleted Successfully!", { variant: "success" });
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error: any) => {
@@ -212,7 +221,7 @@ export default function Home_Post({
                 <div className="w-10 h-10 mr-4">
                   <Image
                     className="rounded-full h-full"
-                    src={`http://localhost:2000/${post?.user?.profileId.avatar}`}
+                    src={`http://localhost:2000/${post?.user?.profileId?.avatar}`}
                     alt={`${post?.user?.username}'s avatar`}
                     width={999}
                     height={999}
@@ -225,22 +234,25 @@ export default function Home_Post({
                   {post?.user?.username}
                 </div>
               </div>
-              {user && (user.isAdmin || user._id === post?.user?._id) && (
-                <div className="flex items-center">
-                  <button
-                    className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-blue-500"
-                    onClick={() => handleEdit(post._id)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-red-500"
-                    onClick={() => handleDelete(post._id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              )}
+              {user &&
+                (user.role === "superAdmin" ||
+                  user.role === "admin" ||
+                  user._id === post?.user?._id) && (
+                  <div className="flex items-center">
+                    <button
+                      className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-blue-500"
+                      onClick={() => handleEdit(post._id)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-red-500"
+                      onClick={() => handleDelete(post._id)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
             </div>
 
             <h2 className="text-xl font-bold">{post.title}</h2>
@@ -251,7 +263,7 @@ export default function Home_Post({
                   {post.attachments.map((attachment) => (
                     <div key={attachment} className="w-full h-56">
                       <Image
-                        className="w-full h-full"
+                        className="w-full h-full object-cover"
                         src={`http://localhost:2000/${attachment}`}
                         alt={`${post.user.username}'s avatar`}
                         width={999}
@@ -280,6 +292,7 @@ export default function Home_Post({
             )}
 
             <ButtonGroup
+              isPostPage={true}
               isLiked={post.likes?.includes(user._id) ? true : false}
               onCommentClick={() => {
                 setOpenModal(true);
@@ -306,7 +319,7 @@ export default function Home_Post({
                         <div className="w-8 h-8 mr-4">
                           <Image
                             className="rounded-full w-full h-full"
-                            src={`http://localhost:2000/${comment.user.profileId.avatar}`}
+                            src={`http://localhost:2000/${comment.user.profileId?.avatar}`}
                             alt={`${comment.user.username}'s avatar`}
                             width={999}
                             height={999}
@@ -328,7 +341,7 @@ export default function Home_Post({
                               onClick={() => {
                                 setOpenModal(true);
                                 setType("addreply");
-                                setPostId(post._id);
+                                setPost_id(post._id);
                                 setComment_id(comment._id);
                               }}
                             >
@@ -363,7 +376,8 @@ export default function Home_Post({
                             </span>
                           </div>
                           {user &&
-                            (user.isAdmin ||
+                            (user.role === "superAdmin" ||
+                              user.role === "admin" ||
                               user._id === post.user._id ||
                               user._id === comment.user._id) && (
                               <div className="flex items-center space-x-2">
@@ -388,7 +402,7 @@ export default function Home_Post({
                             <div className="flex-grow border-b border-white"></div>
                             <button
                               onClick={() => toggleShowReplies(comment._id)}
-                              className="mx-4 text-blue-900 hover:text-blue-500 text-sm"
+                              className="mx-4 text-blue-700 hover:text-blue-500 text-sm"
                             >
                               {showReplies[comment._id]
                                 ? "Hide Replies"
@@ -403,7 +417,7 @@ export default function Home_Post({
                                   <div className="w-8 h-8 mr-4">
                                     <Image
                                       className="rounded-full w-full h-full"
-                                      src={`http://localhost:2000/${reply.user.profileId.avatar}`}
+                                      src={`http://localhost:2000/${reply.user.profileId?.avatar}`}
                                       alt={`${reply.user.username}'s avatar`}
                                       width={999}
                                       height={999}
@@ -445,11 +459,12 @@ export default function Home_Post({
                                         </button>
                                       )}
                                       <span className="ml-1 text-gray-500">
-                                        {comment && comment.likes?.length}
+                                        {reply && reply.likes?.length}
                                       </span>
                                     </div>
                                     {user &&
-                                      (user.isAdmin ||
+                                      (user.role === "superAdmin" ||
+                                        user.role === "admin" ||
                                         user._id === post.user._id ||
                                         user._id === reply.user._id) && (
                                         <div className="flex items-center space-x-2">
@@ -474,7 +489,7 @@ export default function Home_Post({
                     <div className="flex-grow border-b border-white"></div>
                     <button
                       onClick={() => toggleShowAllComments(post._id)}
-                      className="mx-4 text-blue-900 hover:text-blue-500 text-sm"
+                      className="mx-4 text-blue-700 hover:text-blue-500 text-sm"
                     >
                       {showAllComments[post._id]
                         ? "Show Less Comments"

@@ -75,7 +75,8 @@ export default function Home_AddPost({
       setView("Home_Post");
     },
     onError: (error: any) => {
-      enqueueSnackbar(error.response.data.message, { variant: "error" });
+      console.log(error);
+      enqueueSnackbar(error.response.data.error, { variant: "error" });
     },
   });
 
@@ -95,7 +96,7 @@ export default function Home_AddPost({
   };
   return (
     <>
-      <div className="flex  justify-center h-full overflow-y-auto ">
+      <div className="flex justify-center h-full overflow-y-auto ">
         <div className="bg-gray-300 p-4 rounded shadow-md w-full max-w-md text-gray-800 h-fit">
           <button
             onClick={() => setView(backpage)}

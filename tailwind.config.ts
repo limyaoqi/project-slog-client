@@ -11,6 +11,7 @@ const config: Config = {
       colors: {
         customGray: "rgb(62, 65, 66)",
         hoverGray: "rgb(42, 50, 54)",
+        backgroundGray: "rgb(14, 17, 19)",
       },
       height: {
         "88p": "88%",

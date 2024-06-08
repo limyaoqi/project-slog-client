@@ -21,10 +21,10 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      // console.log(data);
+      console.log(data);
       setCookie("currentUser", JSON.stringify(data), { maxAge: 3600 * 24 });
       enqueueSnackbar("Login Successfully", { variant: "success" });
-      if (data.firstLogin) {
+      if (data.user.firstLogin) {
         router.push("/addprofile");
       } else {
         router.push("/");

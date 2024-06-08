@@ -1,5 +1,5 @@
 import { getProfile, getProfileById } from "@/utils/api_profile";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCookie } from "cookies-next";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -16,7 +16,13 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import Link from "next/link";
-import { getUserFriendShip } from "@/utils/api_friendships";
+import {
+  getUserFriendShip,
+  sendFriendRequest,
+  unfriendUser,
+} from "@/utils/api_friendships";
+import { useSnackbar } from "notistack";
+import { useState } from "react";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString).getTime(); // Convert to milliseconds
@@ -47,6 +53,8 @@ export default function Home_ProfileDetail({
   setProfileId,
 }: Home_ProfileDetailProps) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+  const queryClient = useQueryClient();
 
   const currentUserString = getCookie("currentUser");
   let currentUser = "";
@@ -84,6 +92,44 @@ export default function Home_ProfileDetail({
 
   // console.log(relationship);
 
+  const sendFriendRequestMutation = useMutation({
+    mutationFn: sendFriendRequest,
+    onSuccess: () => {
+      enqueueSnackbar("Send Friend Request Successfully", { variant: "success" });
+      queryClient.invalidateQueries({ queryKey: ["relationship"] });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
+    },
+  });
+
+  const unFriendRequestMutation = useMutation({
+    mutationFn: unfriendUser,
+    onSuccess: () => {
+      enqueueSnackbar("Unfriend Successfully", { variant: "success" });
+      queryClient.invalidateQueries({ queryKey: ["relationship"] });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
+    },
+  });
+
+  const handleRequest = ({ userId }: { userId: string }) => {
+    sendFriendRequestMutation.mutate({
+      _id: userId,
+      token,
+    });
+  };
+
+  const handleUnfriend = (_id: string, username: string) => {
+    if (window.confirm(`Are you sure you want remove ${username}`)) {
+      unFriendRequestMutation.mutate({
+        _id,
+        token,
+      });
+    }
+  };
+
   if (isLoading) {
     return <Spinner />;
   }
@@ -120,7 +166,6 @@ export default function Home_ProfileDetail({
 
   return (
     <div className="flex justify-center items-center h-full">
-      
       <div className="w-full bg-gray-300 p-4 rounded-md shadow-md text-gray-800">
         <div className="mx-auto max-w-screen-xl  px-4">
           <div className="flex justify-between items-center w-full mb-4">
@@ -140,19 +185,41 @@ export default function Home_ProfileDetail({
               </>
             ) : (
               <div>
-                <button className="bg-green-300 px-3 py-2 rounded">
+                {/* <button className="bg-blue-300 px-3 py-2  rounded-full hover:bg-green-600">
                   <FaUserPlus />
-                </button>
+                </button> */}
                 {relationship && relationship.status === "accepted" ? (
-                  <button className="bg-red-500 px-3 py-2 rounded-full hover:bg-red-600">
+                  <button
+                    className="bg-red-500 px-3 py-2 rounded-full hover:bg-red-600"
+                    onClick={() =>
+                      handleUnfriend(relationship._id, profile.user.username)
+                    }
+                  >
                     <FaUserMinus />
                   </button>
                 ) : relationship && relationship.status === "pending" ? (
-                  <button className="bg-gray-500 px-3 py-2 rounded-full">
+                  <button
+                    className="bg-gray-500 px-3 py-2 rounded-full"
+                    onClick={() =>
+                      enqueueSnackbar(
+                        "friend request has already been sent. Please wait for a response.",
+                        {
+                          variant: "warning",
+                        }
+                      )
+                    }
+                  >
                     <FaCheckCircle />
                   </button>
                 ) : (
-                  <button className="bg-green-500 px-3 py-2 rounded-full hover:bg-green-600">
+                  <button
+                    className="bg-green-500 px-3 py-2 rounded-full hover:bg-green-600"
+                    onClick={() =>
+                      handleRequest({
+                        userId: profile.user._id,
+                      })
+                    }
+                  >
                     <FaUserPlus />
                   </button>
                 )}

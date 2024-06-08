@@ -29,12 +29,10 @@ export default function Home({ token, user }: HomeProps) {
 
   const [view, setView] = useState("Home_Post");
 
-  // console.log(user.firstLogin);
-
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex w-full h-88p">
-        <div className="w-1/4 p-6 rounded-lg  h-full">
+      <div className="flex flex-col lg:flex-row w-full lg:h-88p">
+        <div className="w-full lg:w-1/4 p-6 rounded-lg h-full hidden lg:block">
           <Home_Left
             setSelectedFriendId={setSelectedFriendId}
             token={token}
@@ -42,9 +40,8 @@ export default function Home({ token, user }: HomeProps) {
             setView={setView}
           />
         </div>
-        <div className="w-1/2 border-x-2 border-customGray ">
-          <div className=" p-6 rounded-lg h-full ">
-            
+        <div className="w-full lg:w-1/2 border-x-2 border-customGray">
+          <div className="lg:p-4 px-4 pt-8 pb-20 rounded-lg h-full">
             <Home_Center
               backpage={backpage}
               setBackpage={setBackpage}
@@ -58,12 +55,12 @@ export default function Home({ token, user }: HomeProps) {
             />
           </div>
         </div>
-        <div className="w-1/4 p-6 rounded-lg h-full">
+        <div className="w-full lg:w-1/4 p-6 rounded-lg h-full hidden lg:block">
           <Home_Right setView={setView} token={token} />
         </div>
       </div>
-      <div className="flex w-full h-12p justify-center px-4">
-        <div className="w-4/6">
+      <div className="w-full h-12p justify-center px-4  hidden lg:flex">
+        <div className="w-full lg:w-4/6">
           <Navbar
             setView={setView}
             token={token}

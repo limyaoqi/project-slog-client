@@ -8,6 +8,8 @@ import { useState } from "react";
 import Home_EditPost from "./Home_Center/Home_EditPost";
 import Home_EditProfile from "./Home_Center/Home_EditProfile";
 import { User } from "@/utils/interface";
+import Navbar from "../Navbar";
+import { useRouter } from "next/navigation";
 
 interface Home_CenterProps {
   view: string;
@@ -34,58 +36,73 @@ export default function Home_Center({
 }: Home_CenterProps) {
   const [postId, setPostId] = useState<string>("");
 
+  const router = useRouter();
   return (
-    <>
-      {view === "Home_Post" && (
-        <Home_Post
-          token={token}
+    <div className="relative h-full">
+      {/* Navbar component */}
+      <div className="lg:hidden  fixed bottom-0 left-0 w-full  px-6  z-10">
+        <Navbar
           setView={setView}
-          setPostId={setPostId}
-          setProfileId={setProfileId}
-          setBackpage={setBackpage}
+          token={token}
           user={user}
+          goLogin={() => router.push("/login")}
+          setProfileId={setProfileId}
         />
-      )}
-      {view === "Home_EditPost" && (
-        <Home_EditPost setView={setView} postId={postId} token={token} />
-      )}
-      {view === "Home_EditProfile" && (
-        <Home_EditProfile
-          setView={setView}
-          profileId={profileId}
-          token={token}
-        />
-      )}
+      </div>
 
-      {view === "Home_AddPost" && (
-        <Home_AddPost setView={setView} backpage={backpage} token={token} />
-      )}
-      {view === "Home_PostDetail" && (
-        <Home_PostDetail
-          postId={postId}
-          setView={setView}
-          setProfileId={setProfileId}
-          backpage={backpage}
-          token={token}
-        />
-      )}
-      {view === "Home_ProfileDetail" && (
-        <Home_ProfileDetail
-          setView={setView}
-          setPostId={setPostId}
-          profileId={profileId}
-          setProfileId={setProfileId}
-          setBackpage={setBackpage}
-          token={token}
-        />
-      )}
-      {view === "Home_Chatroom" && (
-        <Home_Chatroom
-          token={token}
-          selectedFriendId={selectedFriendId}
-          user={user}
-        />
-      )}
-    </>
+      {/* Main content */}
+      <div className="h-full overflow-y-auto">
+        {view === "Home_Post" && (
+          <Home_Post
+            token={token}
+            setView={setView}
+            setPostId={setPostId}
+            setProfileId={setProfileId}
+            setBackpage={setBackpage}
+            user={user}
+          />
+        )}
+        {view === "Home_EditPost" && (
+          <Home_EditPost setView={setView} postId={postId} token={token} />
+        )}
+        {view === "Home_EditProfile" && (
+          <Home_EditProfile
+            setView={setView}
+            profileId={profileId}
+            token={token}
+          />
+        )}
+        {view === "Home_AddPost" && (
+          <Home_AddPost setView={setView} backpage={backpage} token={token} />
+        )}
+        {view === "Home_PostDetail" && (
+          <Home_PostDetail
+            postId={postId}
+            setView={setView}
+            setProfileId={setProfileId}
+            backpage={backpage}
+            token={token}
+            user={user}
+          />
+        )}
+        {view === "Home_ProfileDetail" && (
+          <Home_ProfileDetail
+            setView={setView}
+            setPostId={setPostId}
+            profileId={profileId}
+            setProfileId={setProfileId}
+            setBackpage={setBackpage}
+            token={token}
+          />
+        )}
+        {view === "Home_Chatroom" && (
+          <Home_Chatroom
+            token={token}
+            selectedFriendId={selectedFriendId}
+            user={user}
+          />
+        )}
+      </div>
+    </div>
   );
 }

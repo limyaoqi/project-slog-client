@@ -9,7 +9,7 @@ import { User } from "@/utils/interface";
 export default function Main() {
   const router = useRouter();
   const [token, setToken] = useState<string>("");
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const currentUserString = getCookie("currentUser");

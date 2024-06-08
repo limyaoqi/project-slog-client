@@ -12,6 +12,7 @@ import {
   subDays,
   format,
 } from "date-fns";
+import { useEffect, useState } from "react";
 
 interface HomeLeftProps {
   setSelectedFriendId: (selectedFriendId: string) => void;
@@ -26,21 +27,215 @@ export default function Home_Left({
   token,
   user,
 }: HomeLeftProps) {
-  const { data: friends = [] } = useQuery({
-    queryKey: ["friends", token],
-    queryFn: () => getAllFriend(token),
+  const [search, setSearch] = useState<string>("");
+  const { data: friends = [], refetch } = useQuery({
+    queryKey: ["friends", search, token],
+    queryFn: () => getAllFriend(search, token),
   });
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [search, refetch]);
+
+  // const friends = [
+  //   {
+  //     _id: "1",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend1",
+  //       username: "jane_smith",
+  //       lastActive: "2024-06-06T08:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/jane_smith.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "2",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend2",
+  //       username: "michael_brown",
+  //       lastActive: "2024-06-01T14:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/michael_brown.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "3",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend3",
+  //       username: "emma_wilson",
+  //       lastActive: "2024-05-30T10:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/emma_wilson.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "4",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend4",
+  //       username: "olivia_jones",
+  //       lastActive: "2024-06-02T09:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/olivia_jones.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "5",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend5",
+  //       username: "william_taylor",
+  //       lastActive: "2024-06-04T15:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/william_taylor.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "6",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend6",
+  //       username: "sophia_davis",
+  //       lastActive: "2024-06-03T11:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/sophia_davis.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "7",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend7",
+  //       username: "james_miller",
+  //       lastActive: "2024-06-05T09:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/james_miller.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "8",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend8",
+  //       username: "isabella_moore",
+  //       lastActive: "2024-05-31T17:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/isabella_moore.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "9",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend9",
+  //       username: "alexander_thomas",
+  //       lastActive: "2024-06-06T07:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/alexander_thomas.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  //   {
+  //     _id: "10",
+  //     user1: {
+  //       _id: "user123",
+  //       username: "john_doe",
+  //       lastActive: "2024-06-05T12:00:00Z",
+  //       isOnline: false,
+  //       profileId: { avatar: "avatars/john_doe.jpg" },
+  //     },
+  //     user2: {
+  //       _id: "friend10",
+  //       username: "mia_wilson",
+  //       lastActive: "2024-06-06T05:00:00Z",
+  //       isOnline: true,
+  //       profileId: { avatar: "avatars/mia_wilson.jpg" },
+  //     },
+  //     status: "accepted",
+  //   },
+  // ];
+
   return (
-    <div className="bg-black rounded text-white p-4 space-y-4 h-full overflow-y-auto">
-      <div className="sticky top-0 bg-black py-4 rounded">
+    <div className=" rounded text-white h-full overflow-hidden">
+      <div className="sticky top-0  px-2 pt-4 rounded">
         <input
           type="text"
           placeholder="Search friends"
           className="w-full px-4 py-2 rounded-md border border-gray-300 text-black"
+          value={search}
+          onChange={handleSearchChange}
         />
       </div>
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2 b-black px-2 pb-20 h-full overflow-y-auto">
         {friends.map((friend: Friendship) => {
           const currentUserIsUser1 = friend.user1._id === user?._id;
 
@@ -63,7 +258,7 @@ export default function Home_Left({
               <div className="w-10 h-10 mr-4">
                 <Image
                   className="rounded-full h-full"
-                  src={`http://localhost:2000/${displayUser.profileId.avatar}`}
+                  src={`http://localhost:2000/${displayUser.profileId?.avatar}`}
                   alt={`${displayUser.username}'s avatar`}
                   width={999}
                   height={999}
