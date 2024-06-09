@@ -4,7 +4,7 @@ import { getCookie } from "cookies-next";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Spinner from "@/components/Spinner";
-import { Post } from "@/utils/interface";
+import { Post, User } from "@/utils/interface";
 import { format, formatDistanceToNow } from "date-fns";
 import { IoCaretBackOutline } from "react-icons/io5";
 import {
@@ -38,14 +38,17 @@ const formatDate = (dateString: string) => {
 
 interface Home_ProfileDetailProps {
   setView: (view: string) => void;
-  setPostId: (view: string) => void;
-  setBackpage: (view: string) => void;
-  setProfileId: (view: string) => void;
+  setPostId: (postId: string) => void;
+  setBackpage: (backpage: string) => void;
+  setProfileId: (profileId: string) => void;
   token: string;
   profileId?: string;
+  user: User;
 }
 
 export default function Home_ProfileDetail({
+  user,
+  token,
   setView,
   setPostId,
   profileId,
@@ -55,16 +58,6 @@ export default function Home_ProfileDetail({
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
-
-  const currentUserString = getCookie("currentUser");
-  let currentUser = "";
-  if (currentUserString) {
-    currentUser = JSON.parse(currentUserString);
-  } else {
-    router.push("/login");
-  }
-
-  const { token, user }: any = currentUser;
 
   // Define the query key based on profileId
   const queryKey = profileId
@@ -95,7 +88,9 @@ export default function Home_ProfileDetail({
   const sendFriendRequestMutation = useMutation({
     mutationFn: sendFriendRequest,
     onSuccess: () => {
-      enqueueSnackbar("Send Friend Request Successfully", { variant: "success" });
+      enqueueSnackbar("Send Friend Request Successfully", {
+        variant: "success",
+      });
       queryClient.invalidateQueries({ queryKey: ["relationship"] });
     },
     onError: (error: any) => {
@@ -140,6 +135,7 @@ export default function Home_ProfileDetail({
   // };
 
   const { profile, posts } = data;
+  console.log(profile)
 
   if (!profile) {
     return (
@@ -165,11 +161,11 @@ export default function Home_ProfileDetail({
     .join(", ");
 
   return (
-    <div className="flex justify-center items-center h-full">
+    <div className=" h-full p-4 m-4">
       <div className="w-full bg-gray-300 p-4 rounded-md shadow-md text-gray-800">
-        <div className="mx-auto max-w-screen-xl  px-4">
+        <div className="mx-auto max-w-screen-xl px-4">
           <div className="flex justify-between items-center w-full mb-4">
-            <h1 className="text-2xl font-bold">{`Welcome to ${profile.user.username}'s Profile`}</h1>
+            <h1 className="text-2xl font-bold">{`Welcome to ${profile?.user?.username}'s Profile`}</h1>
             {profile.user._id === user._id ? (
               <>
                 <button
@@ -185,9 +181,6 @@ export default function Home_ProfileDetail({
               </>
             ) : (
               <div>
-                {/* <button className="bg-blue-300 px-3 py-2  rounded-full hover:bg-green-600">
-                  <FaUserPlus />
-                </button> */}
                 {relationship && relationship.status === "accepted" ? (
                   <button
                     className="bg-red-500 px-3 py-2 rounded-full hover:bg-red-600"
@@ -202,7 +195,7 @@ export default function Home_ProfileDetail({
                     className="bg-gray-500 px-3 py-2 rounded-full"
                     onClick={() =>
                       enqueueSnackbar(
-                        "friend request has already been sent. Please wait for a response.",
+                        "Friend request has already been sent. Please wait for a response.",
                         {
                           variant: "warning",
                         }
@@ -227,9 +220,9 @@ export default function Home_ProfileDetail({
             )}
           </div>
           <div className="flex flex-wrap -mx-4">
-            <div className="w-full lg:w-1/3 px-4 mb-4">
+            <div className="w-full px-4 mb-4">
               <div className="bg-white rounded-md p-4 shadow-md h-full">
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full ">
+                <div className="w-32 h-32 mx-auto mb-4 rounded-full">
                   <Image
                     src={`http://localhost:2000/${profile.avatar}`}
                     alt="Profile Avatar"
@@ -238,19 +231,19 @@ export default function Home_ProfileDetail({
                     className="h-full rounded-full"
                   />
                 </div>
-                <p className="mb-4">
+                <p className="mb-4 break-words">
                   <strong>Bio:</strong> <br />
                   {profile.bio}
                 </p>
-                <p className="mb-4">
+                <p className="mb-4 break-words">
                   <strong>Location:</strong> {profile.location}
                 </p>
-                <p className="mb-4">
+                <p className="mb-4 break-words">
                   <strong>Interests:</strong> {interests}
                 </p>
               </div>
             </div>
-            <div className="w-full lg:w-2/3 px-4 mb-4">
+            <div className="w-full px-4 mb-4">
               <div className="bg-white rounded-md p-4 shadow-md h-full">
                 {posts && posts.length > 0 ? (
                   <div className="overflow-y-auto max-h-96">
@@ -266,7 +259,7 @@ export default function Home_ProfileDetail({
                         }}
                       >
                         <h3 className="text-lg font-bold">{post.title}</h3>
-                        <p>{post.description}</p>
+                        <p className="break-words">{post.description}</p>
                         {post.tags && post.tags.length > 0 && (
                           <p>
                             <strong>Tags:</strong>{" "}

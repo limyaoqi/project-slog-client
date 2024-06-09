@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { logout } from "@/utils/api_users";
 import { deleteCookie, getCookie } from "cookies-next";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { User } from "@/utils/interface";
+import { getProfile } from "@/utils/api_profile";
 
 interface NavbarProps {
   setView: (view: string) => void;
@@ -28,20 +29,23 @@ export default function Navbar({
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
+  const {
+    data = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["profile", token],
+    queryFn: () => getProfile(token),
+  });
+  const { profile } = data;
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [avatar, setAvatar] = useState("");
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
-
-  useEffect(() => {
-    if (user) {
-      setAvatar(user.profileId?.avatar);
-    }
-  }, [user]);
 
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -90,7 +94,7 @@ export default function Navbar({
             <button
               onClick={() => {
                 setView("Home_Post");
-                setDropdownOpen(false)
+                setDropdownOpen(false);
               }}
               className="block w-full text-left mb-2 px-4 py-2  hover:bg-gray-950 hover:text-white rounded-lg transition duration-200 ease-in-out border-2  border-b-indigo-500 "
             >
@@ -111,7 +115,28 @@ export default function Navbar({
             >
               Add Post
             </button>
-            {user.role === "superAdmin"}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setView("Home_Left")}
+                className="block w-full text-left mb-2 px-4 py-2 hover:bg-gray-950 hover:text-white rounded-lg transition duration-200 ease-in-out border-2 border-b-indigo-500"
+              >
+                Friend List
+              </button>
+              <button
+                onClick={() => setView("Home_Right")}
+                className="block w-full text-left mb-2 px-4 py-2 hover:bg-gray-950 hover:text-white rounded-lg transition duration-200 ease-in-out border-2 border-b-indigo-500"
+              >
+                Notifications
+              </button>
+            </div>
+            {user && (user.role === "superAdmin" || user.role === "admin") && (
+              <button
+                onClick={() => setView("Home_UserManagement")}
+                className="block w-full text-left mb-2 px-4 py-2  hover:bg-gray-950  hover:text-white rounded-lg transition duration-200 ease-in-out border-2  border-b-indigo-500"
+              >
+                User Management
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="block w-full text-left mb-2 px-4 py-2  hover:bg-gray-950  hover:text-white rounded-lg transition duration-200 ease-in-out border-2  border-b-indigo-500"
@@ -129,7 +154,7 @@ export default function Navbar({
               {user && (
                 <Image
                   className="rounded-full h-full"
-                  src={`http://localhost:2000/${user.profileId?.avatar}`}
+                  src={`http://localhost:2000/${profile?.avatar}`}
                   alt={`${user?.username} avatar`}
                   width={999}
                   height={999}

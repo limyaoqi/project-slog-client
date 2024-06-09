@@ -5,6 +5,7 @@ export interface User {
   email: string;
   password?: string;
   isOnline: boolean;
+  isBlocked: boolean;
   role?: "superAdmin" | "admin" | "user";
   lastActive: Date;
   firstLogin: boolean;

@@ -21,7 +21,9 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      console.log(data);
+      if (!data.user.profileId) {
+        data.user.profileId = "";
+      }
       setCookie("currentUser", JSON.stringify(data), { maxAge: 3600 * 24 });
       enqueueSnackbar("Login Successfully", { variant: "success" });
       if (data.user.firstLogin) {
@@ -32,7 +34,7 @@ export default function LoginPage() {
     },
     onError: (error: any) => {
       // console.log(error.response.data.msg)
-      enqueueSnackbar(error.response.data.msg, { variant: "error" });
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
     },
   });
 

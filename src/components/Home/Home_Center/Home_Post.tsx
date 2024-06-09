@@ -1,7 +1,12 @@
 import { Post, User } from "../../../utils/interface";
 import { deletePost, getPosts } from "@/utils/api_posts";
 import { likePost } from "@/utils/api_like";
-import { addComment, addReply, deleteComment } from "@/utils/api_comments";
+import {
+  addComment,
+  addReply,
+  deleteComment,
+  deleteReply,
+} from "@/utils/api_comments";
 import { useSnackbar } from "notistack";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -12,6 +17,7 @@ import ButtonGroup from "@/components/Button";
 import { FaEdit, FaHeart, FaReply, FaTrash } from "react-icons/fa";
 import Model from "@/components/Model";
 import { getUsers } from "@/utils/api_users";
+import { set } from "date-fns";
 
 interface Home_PostProps {
   setView: (view: string) => void;
@@ -45,9 +51,10 @@ export default function Home_Post({
   const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const [search, setSearch] = useState("");
 
   const {
-    data: posts = [],
+    data: posts,
     isLoading,
     isError,
   } = useQuery({
@@ -56,11 +63,10 @@ export default function Home_Post({
   });
 
   const { data: users = [] } = useQuery({
-    queryKey: ["users", token],
-    queryFn: () => getUsers(token),
+    queryKey: ["users", token, search],
+    queryFn: () => getUsers(token, search),
   });
-
-  // console.log(users)
+  // console.log(users);
 
   const likePostMutation = useMutation({
     mutationFn: likePost,
@@ -97,9 +103,9 @@ export default function Home_Post({
 
   const addCommentMutation = useMutation({
     mutationFn: addComment,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      enqueueSnackbar("Comment added successfully", { variant: "success" });
+      enqueueSnackbar(data.message, { variant: "success" });
       setOpenModal(false);
       setContent("");
     },
@@ -115,6 +121,17 @@ export default function Home_Post({
       enqueueSnackbar("Reply comment successfully", { variant: "success" });
       setOpenModal(false);
       setContent("");
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
+    },
+  });
+
+  const deleteReplyMutation = useMutation({
+    mutationFn: deleteReply,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      enqueueSnackbar(data.message, { variant: "success" });
     },
     onError: (error: any) => {
       enqueueSnackbar(error.response.data.message, { variant: "error" });
@@ -169,6 +186,16 @@ export default function Home_Post({
     }
   };
 
+  const handleDeleteReply = (
+    post_id: string,
+    comment_id: string,
+    reply_id: string
+  ) => {
+    if (confirm("Are you sure you want to delete this reply?")) {
+      deleteReplyMutation.mutate({ post_id, comment_id, reply_id, token });
+    }
+  };
+
   const goPostDetail = (postId: string) => {
     setView("Home_PostDetail");
     setPostId(postId);
@@ -199,6 +226,8 @@ export default function Home_Post({
           type="text"
           placeholder="Search username"
           className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
@@ -210,12 +239,41 @@ export default function Home_Post({
           handleSubmit={() => handleAddComment()}
         />
       )}
-
-      {posts.length === 0 ? (
+      {search !== "" ? (
+        users.length === 0 ? (
+          <div className="text-center text-gray-500">
+            No Matching User Found
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {users.map((user: User) => (
+              <div
+                key={user._id}
+                className="bg-white text-black p-6 rounded-lg shadow-md"
+                onClick={() => goProfileDetail(user._id)}
+              >
+                <div className="w-32 h-32 mx-auto mb-4 rounded-full">
+                  <Image
+                    src={`http://localhost:2000/${user.profileId.avatar}`}
+                    alt="Profile Avatar"
+                    width={999}
+                    height={999}
+                    className="h-full rounded-full"
+                  />
+                </div>
+                <h2 className="text-xl font-bold mb-2 text-center">
+                  {user.username}
+                </h2>
+                <p className="text-gray-700 text-center">{user.email}</p>
+              </div>
+            ))}
+          </div>
+        )
+      ) : posts.length === 0 ? (
         <div>No posts available</div>
       ) : (
         posts.map((post: Post) => (
-          <div key={post._id} className="border p-4 rounded mb-4 ">
+          <div key={post._id} className="border p-4 rounded mb-4">
             <div className="flex justify-between items-center w-full mb-4">
               <div className="flex items-center">
                 <div className="w-10 h-10 mr-4">
@@ -228,7 +286,7 @@ export default function Home_Post({
                   />
                 </div>
                 <div
-                  className="text-sm text-gray-200 hover:underline"
+                  className="text-sm text-gray-200 hover:underline break-words"
                   onClick={() => goProfileDetail(post.user._id)}
                 >
                   {post?.user?.username}
@@ -240,13 +298,13 @@ export default function Home_Post({
                   user._id === post?.user?._id) && (
                   <div className="flex items-center">
                     <button
-                      className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-blue-500"
+                      className="px-2 text-gray-700 transition duration-300 ease-in-out hover:text-blue-500"
                       onClick={() => handleEdit(post._id)}
                     >
                       <FaEdit />
                     </button>
                     <button
-                      className="px-2 text-gray-700 transition duration-300 ease-in-out  hover:text-red-500"
+                      className="px-2 text-gray-700 transition duration-300 ease-in-out hover:text-red-500"
                       onClick={() => handleDelete(post._id)}
                     >
                       <FaTrash />
@@ -255,15 +313,18 @@ export default function Home_Post({
                 )}
             </div>
 
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            <p className="text-gray-500">{post.description}</p>
+            <h2 className="text-xl font-bold break-words">{post.title}</h2>
+            <p className="text-gray-500 break-words">{post.description}</p>
             {post.attachments && post.attachments.length > 1 ? (
               <div className="mt-2">
-                <ul className=" grid grid-cols-3 list-disc list-inside">
+                <ul className="grid grid-cols-3 list-disc list-inside ">
                   {post.attachments.map((attachment) => (
-                    <div key={attachment} className="w-full h-56">
+                    <div
+                      key={attachment}
+                      className="w-full h-56 border-2 border-indigo-500 rounded"
+                    >
                       <Image
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain rounded "
                         src={`http://localhost:2000/${attachment}`}
                         alt={`${post.user.username}'s avatar`}
                         width={999}
@@ -277,9 +338,9 @@ export default function Home_Post({
               <div className="mt-2">
                 <ul className="list-disc list-inside">
                   {post.attachments?.map((attachment) => (
-                    <div key={attachment} className="w-full h-full">
+                    <div key={attachment} className="w-full h-96 max-h-96 ">
                       <Image
-                        className="w-full h-full"
+                        className="w-full h-full object-contain rounded"
                         src={`http://localhost:2000/${attachment}`}
                         alt={`${post.user.username}'s avatar`}
                         width={999}
@@ -315,7 +376,7 @@ export default function Home_Post({
                   )
                   .map((comment) => (
                     <div key={comment._id} className="mt-4">
-                      <div className="flex items-start">
+                      <div className="flex items-center w-full">
                         <div className="w-8 h-8 mr-4">
                           <Image
                             className="rounded-full w-full h-full"
@@ -325,15 +386,18 @@ export default function Home_Post({
                             height={999}
                           />
                         </div>
-                        <div className="flex-grow">
-                          <p
-                            className="text-gray-200 mr-3 hover:underline cursor-pointer"
-                            onClick={() => goProfileDetail(comment.user._id)}
-                          >
-                            {comment.user.username}:
-                          </p>
-                          <p className="text-gray-300">{comment.content}</p>
-                        </div>
+                        <p
+                          className="text-gray-200 mr-3 hover:underline cursor-pointer break-words"
+                          onClick={() => goProfileDetail(comment.user._id)}
+                        >
+                          {comment.user.username}:
+                        </p>
+                      </div>
+                      <p className="text-gray-300 break-words my-2">
+                        {comment.content}
+                      </p>
+
+                      <div className="flex justify-between items-center text-center">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center">
                             <button
@@ -392,10 +456,11 @@ export default function Home_Post({
                               </div>
                             )}
                         </div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(comment.createdAt).toLocaleString()}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 mt-2">
-                        {new Date(comment.createdAt).toLocaleString()}
-                      </div>
+
                       {comment.replies && comment.replies.length > 0 && (
                         <div className="mt-2 pl-4 border-l">
                           <div className="flex items-center justify-center mt-2 mb-2">
@@ -413,7 +478,7 @@ export default function Home_Post({
                           {showReplies[comment._id] &&
                             comment.replies.map((reply) => (
                               <div key={reply._id} className="mt-3">
-                                <div className="flex items-start">
+                                <div className="flex items-center w-full ">
                                   <div className="w-8 h-8 mr-4">
                                     <Image
                                       className="rounded-full w-full h-full"
@@ -423,19 +488,21 @@ export default function Home_Post({
                                       height={999}
                                     />
                                   </div>
-                                  <div className="flex-grow">
-                                    <p
-                                      className="text-gray-200 mr-3 hover:underline cursor-pointer"
-                                      onClick={() =>
-                                        goProfileDetail(reply.user._id)
-                                      }
-                                    >
-                                      {reply.user.username}:
-                                    </p>
-                                    <p className="text-gray-300">
-                                      {reply.content}
-                                    </p>
-                                  </div>
+                                  <p
+                                    className="text-gray-200 mr-3 hover:underline cursor-pointer break-words"
+                                    onClick={() =>
+                                      goProfileDetail(reply.user._id)
+                                    }
+                                  >
+                                    {reply.user.username}:
+                                  </p>
+                                </div>
+
+                                <p className="text-gray-300 break-words my-2">
+                                  {reply.content}
+                                </p>
+
+                                <div className="flex justify-between items-center text-center">
                                   <div className="flex items-center space-x-4">
                                     <div className="flex items-center">
                                       {reply &&
@@ -468,15 +535,25 @@ export default function Home_Post({
                                         user._id === post.user._id ||
                                         user._id === reply.user._id) && (
                                         <div className="flex items-center space-x-2">
-                                          <button className="text-gray-500 hover:text-red-500">
+                                          <button
+                                            className="text-gray-500 hover:text-red-500"
+                                            onClick={() =>
+                                              handleDeleteReply(
+                                                post._id,
+                                                comment._id,
+                                                reply._id
+                                              )
+                                            }
+                                          >
                                             <FaTrash />
                                           </button>
                                         </div>
                                       )}
                                   </div>
-                                </div>
-                                <div className="text-sm text-gray-500 mt-2">
-                                  {new Date(reply.createdAt).toLocaleString()}
+
+                                  <div className="text-sm text-gray-500 mt-2">
+                                    {new Date(reply.createdAt).toLocaleString()}
+                                  </div>
                                 </div>
                               </div>
                             ))}

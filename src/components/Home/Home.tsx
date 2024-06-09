@@ -8,6 +8,8 @@ import Home_Right from "./Home_Right";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { User } from "@/utils/interface";
+import { getUser } from "@/utils/api_users";
+import { useQuery } from "@tanstack/react-query";
 
 export interface Friend {
   id: string;
@@ -18,10 +20,9 @@ export interface Friend {
 }
 interface HomeProps {
   token: string;
-  user: User;
 }
 
-export default function Home({ token, user }: HomeProps) {
+export default function Home({ token }: HomeProps) {
   const router = useRouter();
   const [selectedFriendId, setSelectedFriendId] = useState<string>("");
   const [profileId, setProfileId] = useState<string>("");
@@ -29,18 +30,25 @@ export default function Home({ token, user }: HomeProps) {
 
   const [view, setView] = useState("Home_Post");
 
+  const { data: user = [] } = useQuery({
+    queryKey: ["user", token],
+    queryFn: () => getUser(token),
+  });
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-col lg:flex-row w-full lg:h-88p">
         <div className="w-full lg:w-1/4 p-6 rounded-lg h-full hidden lg:block">
           <Home_Left
-            setSelectedFriendId={setSelectedFriendId}
             token={token}
-            user={user}
+            view={view}
             setView={setView}
+            setSelectedFriendId={setSelectedFriendId}
+            setBackpage={setBackpage}
+            user={user}
           />
         </div>
-        <div className="w-full lg:w-1/2 border-x-2 border-customGray">
+        <div className="w-full lg:w-1/2 border-x-2 border-customGray h-full">
           <div className="lg:p-4 px-4 pt-8 pb-20 rounded-lg h-full">
             <Home_Center
               backpage={backpage}
@@ -52,6 +60,7 @@ export default function Home({ token, user }: HomeProps) {
               selectedFriendId={selectedFriendId}
               profileId={profileId}
               setProfileId={setProfileId}
+              setSelectedFriendId={setSelectedFriendId}
             />
           </div>
         </div>

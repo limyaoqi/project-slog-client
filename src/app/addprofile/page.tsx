@@ -54,7 +54,6 @@ export default function LoginPage() {
       setCookieData(currentUser);
     }
   }, []);
-  console.log(cookieData)
 
   const handleAddTag = () => {
     if (newTag.trim() !== "") {
@@ -79,26 +78,25 @@ export default function LoginPage() {
 
   const createProfileMutation = useMutation({
     mutationFn: createProfile,
-    onSuccess: (data: any) => {
+    onSuccess: (data) => {
       if (cookieData) {
         const updatedUser = {
           ...cookieData,
-          user: { ...cookieData.user, profileId: data._id },
+          user: { ...cookieData.user, profileId: data.profile._id },
         };
         setCookie("currentUser", JSON.stringify(updatedUser), {
           maxAge: 3600 * 24,
         });
         setCookieData(updatedUser); // Update state with new profileId
+        enqueueSnackbar(data.message, { variant: "success" });
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        queryClient.invalidateQueries({ queryKey: ["tags"] });
+        router.push("/");
       }
-
-      enqueueSnackbar("Added profile Successfully", { variant: "success" });
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["tags"] });
-      router.push("/");
     },
     onError: (error: any) => {
       // console.log(error.response.data.msg)
-      enqueueSnackbar(error.response.data.msg, { variant: "error" });
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
     },
   });
 

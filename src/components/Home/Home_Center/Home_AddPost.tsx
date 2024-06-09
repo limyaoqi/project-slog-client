@@ -75,8 +75,8 @@ export default function Home_AddPost({
       setView("Home_Post");
     },
     onError: (error: any) => {
-      console.log(error);
-      enqueueSnackbar(error.response.data.error, { variant: "error" });
+      // console.log(error);
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
     },
   });
 

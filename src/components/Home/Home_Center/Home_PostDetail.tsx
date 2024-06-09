@@ -1,7 +1,12 @@
 import ButtonGroup from "@/components/Button";
 import Model from "@/components/Model";
 import Spinner from "@/components/Spinner";
-import { addComment, addReply, deleteComment } from "@/utils/api_comments";
+import {
+  addComment,
+  addReply,
+  deleteComment,
+  deleteReply,
+} from "@/utils/api_comments";
 import { likePost } from "@/utils/api_like";
 import { deletePost, getPostById } from "@/utils/api_posts";
 import { Comment, User } from "@/utils/interface";
@@ -16,7 +21,7 @@ interface Home_PostDetailProps {
   backpage: string;
   setView: (view: string) => void;
   token: string;
-  setProfileId: (view: string) => void;
+  setProfileId: (profileId: string) => void;
   user: User;
 }
 
@@ -106,6 +111,17 @@ export default function Home_PostDetail({
     },
   });
 
+  const deleteReplyMutation = useMutation({
+    mutationFn: deleteReply,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      enqueueSnackbar(data.message, { variant: "success" });
+    },
+    onError: (error: any) => {
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
+    },
+  });
+
   const handlePostLike = (id: string, type: "post" | "comment" | "reply") => {
     likePostMutation.mutate({
       type,
@@ -150,6 +166,16 @@ export default function Home_PostDetail({
   const handleDeleteComment = (comment_id: string) => {
     if (confirm("Are you sure you want to delete this comment?")) {
       deleteCommentMutation.mutate({ comment_id, token });
+    }
+  };
+
+  const handleDeleteReply = (
+    post_id: string,
+    comment_id: string,
+    reply_id: string
+  ) => {
+    if (confirm("Are you sure you want to delete this reply?")) {
+      deleteReplyMutation.mutate({ post_id, comment_id, reply_id, token });
     }
   };
 
@@ -221,8 +247,8 @@ export default function Home_PostDetail({
               </div>
             )}
         </div>
-        <h2 className="text-xl font-bold">{post.title}</h2>
-        <p className="text-gray-700">{post.description}</p>
+        <h2 className="text-xl font-bold break-words">{post.title}</h2>
+        <p className="text-gray-700 break-words">{post.description}</p>
         {post.attachments && post.attachments.length > 1 ? (
           <div className="mt-2">
             <ul className=" grid grid-cols-3 list-disc list-inside">
@@ -276,7 +302,7 @@ export default function Home_PostDetail({
             <h3 className="font-semibold border-t pt-2">Comments:</h3>
             {post.comments.map((comment: Comment) => (
               <div key={comment._id} className="mt-4">
-                <div className="flex items-start">
+                <div className="flex items-center w-full ">
                   <div className="w-8 h-8 mr-4">
                     <Image
                       className="rounded-full w-full h-full"
@@ -286,16 +312,19 @@ export default function Home_PostDetail({
                       height={999}
                     />
                   </div>
-                  <div className="flex-grow">
-                    <p
-                      className="text-gray-200 mr-3 hover:underline cursor-pointer"
-                      onClick={() => goProfileDetail(comment.user._id)}
-                    >
-                      {comment.user.username}:
-                    </p>
-                    <p className="text-gray-300">{comment.content}</p>
-                  </div>
-                  <div className="flex items-center space-x-4">
+                  <p
+                    className="text-gray-200 mr-3 hover:underline cursor-pointer"
+                    onClick={() => goProfileDetail(comment.user._id)}
+                  >
+                    {comment.user.username}:
+                  </p>
+                </div>
+                <p className="text-gray-300 break-words my-2">
+                  {comment.content}
+                </p>
+
+                <div className="flex justify-between items-center text-center">
+                  <div className="flex items-center  space-x-4">
                     <div className="flex items-center">
                       <button
                         className="text-gray-500 hover:text-blue-500 transition-colors duration-300"
@@ -347,15 +376,16 @@ export default function Home_PostDetail({
                         </div>
                       )}
                   </div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500 mt-2">
-                  {new Date(comment.createdAt).toLocaleString()}
-                </div>
+
                 {comment.replies && comment.replies.length > 0 && (
                   <div className="mt-2 pl-4 border-l">
                     {comment.replies.map((reply) => (
                       <div key={reply._id} className="mt-3">
-                        <div className="flex items-start">
+                        <div className="flex items-center w-full ">
                           <div className="w-8 h-8 mr-4">
                             <Image
                               className="rounded-full w-full h-full"
@@ -365,15 +395,19 @@ export default function Home_PostDetail({
                               height={999}
                             />
                           </div>
-                          <div className="flex-grow">
-                            <p
-                              className="text-gray-200 mr-3 hover:underline cursor-pointer"
-                              onClick={() => goProfileDetail(reply.user._id)}
-                            >
-                              {reply.user.username}:
-                            </p>
-                            <p className="text-gray-300">{reply.content}</p>
-                          </div>
+                          <p
+                            className="text-gray-200 mr-3 hover:underline cursor-pointer"
+                            onClick={() => goProfileDetail(reply.user._id)}
+                          >
+                            {reply.user.username}:
+                          </p>
+                        </div>
+
+                        <p className="text-gray-300 break-words my-2">
+                          {reply.content}
+                        </p>
+
+                        <div className="flex justify-between items-center text-center">
                           <div className="flex items-center space-x-4">
                             <div className="flex items-center">
                               {reply && reply.likes?.includes(user._id) ? (
@@ -405,15 +439,24 @@ export default function Home_PostDetail({
                                 user._id === post.user._id ||
                                 user._id === reply.user._id) && (
                                 <div className="flex items-center space-x-2">
-                                  <button className="text-gray-500 hover:text-red-500">
+                                  <button
+                                    className="text-gray-500 hover:text-red-500"
+                                    onClick={() =>
+                                      handleDeleteReply(
+                                        post._id,
+                                        comment._id,
+                                        reply._id
+                                      )
+                                    }
+                                  >
                                     <FaTrash />
                                   </button>
                                 </div>
                               )}
                           </div>
-                        </div>
-                        <div className="text-sm text-gray-500 mt-2">
-                          {new Date(reply.createdAt).toLocaleString()}
+                          <div className="text-sm text-gray-500 mt-2">
+                            {new Date(reply.createdAt).toLocaleString()}
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -7,6 +7,7 @@ interface DropzoneProps {
 }
 
 const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded }) => {
+  
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       onFilesAdded(acceptedFiles);

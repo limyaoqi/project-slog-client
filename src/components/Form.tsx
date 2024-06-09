@@ -106,6 +106,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="mt-1 block text-black w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          maxLength={20}
           required
         />
       </div>
@@ -123,6 +124,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1 block w-full text-black px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          maxLength={28}
           required
         />
       </div>
@@ -250,7 +252,6 @@ export const AddPostForm: React.FC<PostFormProps> = ({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="mt-1 block text-black w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          required
         />
       </div>
       <div>

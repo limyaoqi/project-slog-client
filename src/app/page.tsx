@@ -18,10 +18,15 @@ export default function Main() {
     } else {
       const currentUser = JSON.parse(currentUserString);
       const { token, user } = currentUser;
+      if (!user.profileId || user.profileId === "") {
+        router.push("/addprofile");
+      }
       setToken(token);
       setUser(user);
     }
   }, []);
+
+  console.log(user);
 
   return (
     // <ReactQueryProvider>

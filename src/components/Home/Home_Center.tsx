@@ -10,6 +10,9 @@ import Home_EditProfile from "./Home_Center/Home_EditProfile";
 import { User } from "@/utils/interface";
 import Navbar from "../Navbar";
 import { useRouter } from "next/navigation";
+import Home_Left from "./Home_Left";
+import Home_Right from "./Home_Right";
+import Home_UserManagement from "./Home_Center/Home_UserManagement";
 
 interface Home_CenterProps {
   view: string;
@@ -21,6 +24,7 @@ interface Home_CenterProps {
   user: User;
   backpage: string;
   setBackpage: (backpage: string) => void;
+  setSelectedFriendId: (selectedFriendId: string) => void;
 }
 
 export default function Home_Center({
@@ -29,6 +33,7 @@ export default function Home_Center({
   view,
   setView,
   selectedFriendId,
+  setSelectedFriendId,
   profileId,
   setProfileId,
   backpage,
@@ -87,12 +92,13 @@ export default function Home_Center({
         )}
         {view === "Home_ProfileDetail" && (
           <Home_ProfileDetail
+            token={token}
+            user={user}
             setView={setView}
             setPostId={setPostId}
             profileId={profileId}
             setProfileId={setProfileId}
             setBackpage={setBackpage}
-            token={token}
           />
         )}
         {view === "Home_Chatroom" && (
@@ -100,7 +106,32 @@ export default function Home_Center({
             token={token}
             selectedFriendId={selectedFriendId}
             user={user}
+            setView={setView}
+            backpage={backpage}
           />
+        )}
+        {view === "Home_UserManagement" && (
+          <Home_UserManagement
+            token={token}
+            currentUser={user}
+            // selectedFriendId={selectedFriendId}
+            setProfileId={setProfileId}
+            setView={setView}
+            setBackpage={setBackpage}
+          />
+        )}
+        {view === "Home_Left" && (
+          <Home_Left
+            token={token}
+            view={view}
+            setView={setView}
+            setSelectedFriendId={setSelectedFriendId}
+            setBackpage={setBackpage}
+            user={user}
+          />
+        )}
+        {view === "Home_Right" && (
+          <Home_Right token={token} setView={setView} />
         )}
       </div>
     </div>

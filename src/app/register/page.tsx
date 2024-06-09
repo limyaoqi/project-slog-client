@@ -27,7 +27,7 @@ export default function RegisterPage() {
     },
     onError: (error: any) => {
       // console.log(error.response.data.msg)
-      enqueueSnackbar(error.response.data.msg, { variant: "error" });
+      enqueueSnackbar(error.response.data.message, { variant: "error" });
     },
   });
 
