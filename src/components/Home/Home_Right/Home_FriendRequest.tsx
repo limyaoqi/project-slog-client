@@ -65,14 +65,14 @@ export default function Home_FriendRequest({
       }`}
     >
       <div
-        className="flex justify-between items-center px-4 py-2 rounded bg-black hover:bg-gray-900 focus:outline-none transition-colors duration-300 "
+        className="flex justify-between items-center px-4 py-2 rounded bg-black hover:bg-gray-900 focus:outline-none transition-colors duration-300 cursor-pointer"
         onClick={toggleAccordion}
       >
-        <button className="w-full  text-left text-lg font-semibold   ">
+        <button className="w-full text-left text-lg font-semibold">
           Request
         </button>
         {requests && requests.length > 0 && (
-          <span className=" h-3 w-3 rounded-full bg-red-500"></span>
+          <span className="h-3 w-3 rounded-full bg-red-500"></span>
         )}
       </div>
 
@@ -82,7 +82,7 @@ export default function Home_FriendRequest({
             requests.map((request) => (
               <div
                 key={request._id}
-                className="px-2 py-2 bg-hoverGray rounded cursor-pointer flex items-center space-x-4"
+                className="px-2 py-2 bg-hoverGray rounded flex flex-col sm:flex-row items-center sm:space-x-4 space-y-4 sm:space-y-0"
               >
                 <div className="w-10 h-10 mr-2">
                   <Image
@@ -93,9 +93,9 @@ export default function Home_FriendRequest({
                     height={999}
                   />
                 </div>
-                <div className="flex-1">
-                  <p>{request.user1.username} send you a friend request.</p>
-                  <div className="mt-2 space-x-2">
+                <div className="flex-1 text-center sm:text-left">
+                  <p>{request.user1.username} sent you a friend request.</p>
+                  <div className="mt-2 flex justify-center sm:justify-start space-x-2">
                     <button
                       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
                       onClick={() => handleAccept(request._id)}

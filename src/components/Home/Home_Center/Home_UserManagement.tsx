@@ -162,7 +162,7 @@ const Home_UserManagement: React.FC<HomeUserManagementProps> = ({
           </tr>
         </thead>
         <tbody>
-          {sortedUsers &&
+          {sortedUsers.length > 0 ? (
             sortedUsers.map((user: User) => {
               const lastActiveDate = parseISO(user.lastActive.toString());
               const moreThan7DaysAgo = isBefore(
@@ -200,7 +200,7 @@ const Home_UserManagement: React.FC<HomeUserManagementProps> = ({
                           className="cursor-pointer hover:underline transition duration-200 ease-in-out"
                           onClick={() => {
                             setBackpage("Home_UserManagement");
-                            setProfileId(user.profileId._id);
+                            setProfileId(user._id);
                             setView("Home_ProfileDetail");
                           }}
                         >
@@ -213,7 +213,7 @@ const Home_UserManagement: React.FC<HomeUserManagementProps> = ({
                     </div>
                   </td>
                   <td className="py-3 px-3">
-                    {canChangeRole ? (
+                    {canChangeRole && !user.isBlocked ? (
                       <select
                         value={user.role}
                         onChange={(e) =>
@@ -264,7 +264,14 @@ const Home_UserManagement: React.FC<HomeUserManagementProps> = ({
                   </td>
                 </tr>
               );
-            })}
+            })
+          ) : (
+            <tr>
+              <td colSpan={3} className="text-center py-3">
+                No users available.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 

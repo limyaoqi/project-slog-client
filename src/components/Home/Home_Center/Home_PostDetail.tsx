@@ -114,7 +114,7 @@ export default function Home_PostDetail({
   const deleteReplyMutation = useMutation({
     mutationFn: deleteReply,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["post"] });
       enqueueSnackbar(data.message, { variant: "success" });
     },
     onError: (error: any) => {

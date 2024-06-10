@@ -55,8 +55,7 @@ export default function Home_ProfileDetail({
   setBackpage,
   setProfileId,
 }: Home_ProfileDetailProps) {
-  const router = useRouter();
-  const { enqueueSnackbar } = useSnackbar();
+ const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
 
   // Define the query key based on profileId
@@ -135,21 +134,34 @@ export default function Home_ProfileDetail({
   // };
 
   const { profile, posts } = data;
-  console.log(profile)
+  console.log(profile);
 
   if (!profile) {
     return (
       <div className="flex justify-center items-center h-full">
         <div className="w-full bg-gray-200 p-4 rounded-md shadow-md text-gray-800">
           <div className="mx-auto max-w-screen-xl px-4">
-            <h1 className="text-2xl font-bold">Profile not found</h1>
-            <p className="mb-3">Please create a profile to view this page.</p>
-            <Link
-              href={"/addprofile"}
-              className=" bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-all duration-300 ease-in-out"
-            >
-              Go to Add Profile
-            </Link>
+            {profile?.user.toString() === user._id.toString() ? (
+              <>
+                <h1 className="text-2xl font-bold">Profile not found</h1>
+                <p className="mb-3">
+                  Please create a profile to view this page.
+                </p>
+                <Link
+                  href="/addprofile"
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-all duration-300 ease-in-out"
+                >
+                  Go to Add Profile
+                </Link>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold">Profile not found</h1>
+                <p className="mb-3">
+                  {"This user hasn't created a profile yet."}
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
